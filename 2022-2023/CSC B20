@@ -1,0 +1,113 @@
+PRAGMA foreign_keys = ON;
+
+create table Branch
+(
+  branch_id int,
+  address text,
+  city text,
+  manager_name text,
+  opens time,
+  closes time,
+  has_atm bool,
+  primary key(branch_id)
+);
+
+create table Customer
+(
+  customer_id int AUTO_INCREMENT,
+  first_name text,
+  last_name text,
+  address text,
+  date_joined date,
+  primary key(customer_id)
+);
+
+create table Loan
+(
+  loan_id int AUTO_INCREMENT,
+  customer_id int,
+  amount decimal,
+  date date,
+  term int,
+  primary key(loan_id),
+  foreign key(customer_id) references Customer(customer_id)
+);
+
+create table Account
+(
+  account_id int AUTO_INCREMENT,
+  customer_id int,
+  branch_id int,
+  balance decimal,
+  primary key(account_id),
+  foreign key(customer_id) references Customer(customer_id),
+  foreign key(branch_id) references Branch(branch_id)
+);
+
+insert into Branch
+(branch_id, address, city, manager_name, opens, closes, has_atm)
+VALUES(123, '1st street', 'Vancouver', 'John Smith', '09:00:00', '07:00:00', 0),
+(234, '2nd street', 'Vancouver', 'Anna', '09:00:00', '07:00:00', 1),
+(235, 'Danforth', 'Toronto', 'George', '09:00:00', '07:00:00', 1),
+(135, 'Scarborough', 'Toronto', 'Jaka', '09:00:00', '07:00:00', 0),
+(136, 'Banff', 'Calgary', 'Jasper', '09:00:00', '07:00:00', 0);
+
+insert into Customer
+(customer_id, first_name, last_name, address, date_joined)
+VALUES(1, 'Anita', 'Borg', 'abc', '2023-01-22'),
+  (2, 'Taylor', 'Anne', 'idk', '2013-02-08'),
+  (3, 'Sally', 'Sal', 'street', '2000-11-12'),
+  (4, 'Blah', 'Blan', 'lol', '2012-11-11'),
+  (5, 'wefgb', 'aefsd', 'wef', '2013-12-09')
+  ;
+
+insert into Loan
+  (loan_id, customer_id, amount, date, term)
+  VALUES(12, 1, 332, '2019-09-09', 2),
+  (23, 2, 3456, '2019-09-11', 2),
+  (13, 3, 6543, '2019-09-10', 2),
+  (45, 4, 12345, '2019-09-12', 2),
+  (76, 5, 123456, '2019-09-19', 2)
+  ;
+
+insert into Account
+  (account_id, customer_id, branch_id, balance)
+  VALUES(1, 3, 234, 3000),
+  (2, 4, 123, 18000),
+  (3, 5, 135, 12000),
+  (4, 3, 234, 3000)
+  ;
+
+-- -- the names of all branch managers in Vancouver
+select manager_name from Branch
+  where city='Vancouver';
+
+-- -- the dates of all loans by customer with the name 'Anita Borg'
+select Loan.date from Loan inner join Customer on Customer.customer_id=Loan.customer_id
+  where Customer.first_name='Anita' and Customer.last_name='Borg';
+
+-- -- the names of all people who have loans of more than $10,000
+select Customer.first_name, Customer.last_name
+from Customer inner join Loan on Customer.customer_id=Loan.customer_id
+where Loan.amount > 10000;
+
+--- the names of all people who have accounts in Toronto and loans of more than $5,000
+select Customer.first_name, Customer.last_name
+from Customer inner join Loan on Customer.customer_id=Loan.customer_id
+where Loan.amount > 5000 and Customer.customer_id in
+(
+  select Account.customer_id from Account, Branch
+  where Account.branch_id=Branch.branch_id and Branch.city='Toronto'
+);
+
+
+--- the names of all people who have accounts in Toronto but do not have any loans
+select Customer.first_name, Customer.last_name
+from Account, Branch, Customer where Account.branch_id=Branch.branch_id and Account.customer_id=Customer.customer_id and Branch.city='Toronto' and Account.customer_id Not in
+(select Customer.customer_id
+  from Loan where Customer.customer_id=Loan.customer_id);
+
+-- the names of all people who have a loan of more than $10,000 and a loan less than $1,000
+select C.first_name, C.last_name
+from Customer C, Loan L where C.customer_id=L.customer_id
+and (L.amount > 10000 or L.amount<1000);
