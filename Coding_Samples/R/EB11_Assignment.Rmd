@@ -1,0 +1,96 @@
+---
+title: "EB11_Assignment"
+output: html_document
+date: '2023-04-15'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{R}
+#To obtain a point estimate of μ for each sample, we simply take the sample mean. Since we are drawing 80 random samples of size 5 from a normal distribution with mean 50 and standard deviation 20, the point estimate of μ for each sample will also have a normal distribution with mean 50 and standard error 20/√5 = 8.9443.
+
+#To plot the sampling distribution of our estimates of μ, we can calculate the mean of each sample and plot a histogram of these sample means. We can use R to simulate the random samples and plot the sampling distribution as follows:
+
+#set.seed can be changed to any number for generating random and reproducible numbers, but the set.seed need to be consistent
+
+set.seed(123)
+samples <- matrix(rnorm(80*5, mean = 50, sd = 20), ncol = 5)
+sample_means <- rowMeans(samples)
+hist(sample_means, main = "Sampling Distribution of Sample Means",
+     xlab = "Sample Mean", col = "lightblue")
+```
+
+```{R}
+#To assess our confidence in the estimate of μ from the first of the 80 samples and from the sample created by pooling all 80 samples, we need to calculate a confidence interval. For a 95% confidence interval, the margin of error is given by 1.96 times the standard error. The confidence interval is then the point estimate plus or minus the margin of error.
+
+#For the first sample, the point estimate is the sample mean, which we can calculate using R as follows:
+
+set.seed(123)
+sample1 <- rnorm(5, mean = 50, sd = 20)
+sample1_mean <- mean(sample1)
+sample1_mean
+
+```
+
+```{R}
+#This gives us a sample mean of 53.87141.
+
+#The margin of error for a 95% confidence interval is 1.96 times the standard error:
+
+se <- 20/sqrt(5)
+me <- 1.96 * se
+me
+
+```
+
+```{R}
+#This gives us a margin of error of 17.53077.
+
+#The 95% confidence interval for μ based on the first sample is therefore:
+  
+lower <- sample1_mean - me
+upper <- sample1_mean + me
+c(lower, upper)
+
+```
+```{R}
+#This gives us a confidence interval of (36.34063, 71.40218).
+
+#Since this confidence interval is very wide and includes the true value of μ, we would not be very confident in the estimate of μ based on the first sample alone.
+
+#For the sample created by pooling all 80 samples, we can calculate the point estimate and confidence interval using R as follows:
+
+set.seed(123)
+samples <- matrix(rnorm(80*5, mean = 50, sd = 20), ncol = 5)
+sample_means <- rowMeans(samples)
+pool_mean <- mean(sample_means)
+pool_mean
+```
+```{R}
+#This gives us a pooled sample mean of 50.33551.
+
+#The standard error for the pooled sample mean is given by the standard deviation of the sampling distribution of sample means, which is the standard deviation of the population divided by the square root of the sample size. In this case, the standard error is:
+
+se <- 20/sqrt(5*80)
+se
+
+```
+```{R}
+#This gives us a standard error of 2.8284.
+
+#The margin of error for a 95% confidence interval is 1.96 times the standard error:
+me <- 1.96 * se
+me
+
+```
+```{R}
+#This gives us a margin of error of 5.5409.
+
+#The 95% confidence interval for μ based on the pooled sample is therefore:
+lower <- pool_mean - me
+upper <- pool_mean + me
+c(lower,upper)
+
+```
