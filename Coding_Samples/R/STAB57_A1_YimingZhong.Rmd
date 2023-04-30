@@ -1,0 +1,161 @@
+---
+title: "STAB57_A1"
+output:
+  html_document: default
+  pdf_document: default
+date: '2023-03-06'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1a
+```{r}
+X=c(11, 13, 15, 17, 19, 21, 23, 25, 27, 29)
+mean(X)
+```
+
+#1b
+```{R}
+#construct a population variance function
+#alternatively, we can calculate the unbiased variance by multiplying (n-1)/n: var(X) * (9)/10
+var_pop=function(X){mean((X-mean(X))^2)}
+var_pop(X)
+```
+#1c
+```{R}
+#position 1 has 10 possible replacements, accordingly until position 4, given 10^4 possibilities
+d=expand.grid(X,X,X,X)
+```
+#1d
+```{R}
+#mean calculated for the 10^4 possibilities
+X_bar=apply(d,1,mean)
+```
+#1e
+```{R}
+# construct a frequency table, the frequency of every possible X_bar
+table(X_bar)
+# calculate the proportion of the frequency of every possible X_bar, summing to 1
+prop.table(table(X_bar))
+```
+#1f
+```{R}
+#plot these proportions against the value and connecting these proportions to form a curve by calling type "o"
+plot(prop.table(table(X_bar)),type="o")
+```
+#The shape of this plot look like a normal distribution.
+
+#1g
+```{R}
+mean(X_bar)
+```
+#mean(X) is also 20 in 1a, which is the same as mean(X_bar) in 1g, these two are the same
+
+#1h
+```{R}
+#calling back the var_pop function we constructed above for population variance in 1b to calculate variance for X_bar
+var_pop(X_bar)
+```
+#33/4=8.25 because variance of X_bar is sigma square (population variance) divided by n, where n=4
+
+#1i
+#The CLT Theorem, because in part f we showed the distribution looks normal as the sample size gets larger.In part g we showed that mean of X_bar is equal to mean of X. In part h we showed that variance of X_bar is sigma square divided by n, where n=4.
+
+--------------------------------------
+#2a
+```{R}
+#calculating both variances first, S^2 sample variance
+S_sq=apply(d,1,var)
+
+#sigma_hat^2 sample variance
+sigma_hat_sq=apply(d,1,FUN=var_pop)
+
+#both variances are 0, bias of S^2 by calculating the difference of expected value and the variance, which is 0
+mean(S_sq)-33
+```
+# the bias is zero, meaning S_sq is an unbiased estimator
+```{R}
+#bias of Sigma_hat^2 by calculating the difference of expected value and the variance, which is 0
+mean(sigma_hat_sq)-33
+```
+# bias is not zero, so sigma_hat_sq is an biased estimator
+
+#2b
+```{R}
+#variance of sigma_hat^2
+var_pop(sigma_hat_sq)
+#square of bias of sigma_hat^2
+(mean(sigma_hat_sq)-33)^2
+#variance + square of bias of sigma_bias^2
+var_pop(sigma_hat_sq)+(mean(sigma_hat_sq)-33)^2
+#mse of sigma_hat^2
+mean((sigma_hat_sq-33)^2)
+```
+#True, because variance + square of bias of sigma_bias^2 is equal to the MSE of sigma_hat^2.
+--------------------------
+
+#3a
+```{R}
+sample_4m_uniform=function(x){s=runif(2,-2,2)
+return(mean(s))
+}
+X_bar=replicate(10000,sample_4m_uniform())
+plot(density(X_bar),main="X~Uniform[-2,2] with n=2")
+```
+
+#3b
+```{R}
+sample_4m_uniform=function(x){s=runif(5,-2,2)
+return(mean(s))
+}
+X_bar=replicate(10000,sample_4m_uniform())
+plot(density(X_bar),main="X~Uniform[-2,2] with n=5")
+```
+
+#3c
+```{R}
+sample_4m_uniform=function(x){s=rchisq(5,df=1)
+return(mean(s))
+}
+X_bar=replicate(10000,sample_4m_uniform())
+plot(density(X_bar),main="X~Chi-Square[df=1] with n=5")
+```
+
+#3d
+```{R}
+sample_4m_uniform=function(x){s=rchisq(50,df=1)
+return(mean(s))
+}
+X_bar=replicate(10000,sample_4m_uniform())
+plot(density(X_bar),main="X~Chi-Square[df=1] with n=50")
+```
+
+#3e
+```{R}
+sample_4m_uniform=function(x){s=rchisq(5,df=55)
+return(mean(s))
+}
+X_bar=replicate(10000,sample_4m_uniform())
+plot(density(X_bar),main="X~Chi-Square[df=55] with n=5")
+```
+
+#3f
+#Comparing 3a to 3b, in 2 uniform distributions, the larger the n is, the closer the distribution is to a normal distribution. However, in a chi-square distribution, the sample size n is not a major factor determining how close the chi-square distribution to a normal distribution. The larger degree of freedom is, the closer the chi-square distribution to a normal distribution. In terms of skewness, the sample size plays a larger role in determining the Chi-square distribution skewness, but perhaps a weaker correlation between sample size and skewness in Uniform distribution.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

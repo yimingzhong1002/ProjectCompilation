@@ -1,0 +1,191 @@
+---
+title: "STAB57_A2_YimingZhong"
+output: html_document
+date: '2023-03-27'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{R}
+#Q1A
+#generate 10000 possibilities, given:
+X=c(11, 13, 15, 17, 19, 21, 23, 25, 27, 29)
+d=expand.grid(X,X,X,X)
+X_bar=apply(d,1,mean)
+#set observe sample(21, 23, 25, 27) as Y
+#calculate the observed sample mean
+Y=c(21, 23, 25, 27)
+mean(Y)
+#p-value=2*P[X_bar>=24|mu=20]
+#using CLT, p-value=2*P[Z>=(24-20)/sqrt(33/4)] (normalize)
+2*(1-pnorm(24,mean=20,sd=sqrt(33/4)))
+#the calculated value represents the probability of occurrence of the given event
+```
+```{R}
+#Q1B
+#Without CLT, we look at the 10000 possible values of X_bar and calculate the P[X_bar>=24] by checking how many X_bar are not smaller than 24
+#in Null hypothesis, mu=20
+#we need to include p[X_bar<=16] because we are using absolute level to consider both sides
+mean(abs(X_bar-20)>=4)
+```
+```{R}
+#Q1C
+#in part(a), we assumed the CLT as a continuous distribution not a discrete distribution
+#but in part (b), we assumed the distribution of X_bar as a discrete distribution.
+#if out sample size can be larger, I would expect the difference to become smaller as here we have a relatively small sample size
+```
+```{R}
+#Q2A
+#X1, X2, ..., X5 iid∼ N(µ, σ2 = 4). test: H0: µ = 3 v.s. H1: µ =! 3 at a level of significance, α.
+#Q2Ai
+#generates 5 samples from a N(µ=3, σ2 = 4) distribution
+#evaluates the likelihood function at µ = 3 (save it under the name L_theta0)
+#evaluates the likelihood function at µ = X_bar (save it under the name L_theta1)
+#calculates and returns -2*log(L_theta0/L_theta1)
+LRT_Normal=function(){
+  x=rnorm(5,mean=3,sd=sqrt(4))
+  L_theta0=prod(dnorm(x,mean=3,sd=sqrt(4)))
+  L_theta1=prod(dnorm(x,mean=mean(x),sd=sqrt(4)))
+  return(-2*log(L_theta0/L_theta1))
+}
+LRT_Normal()
+```
+```{R}
+#Q2Aii
+#Run this function (10000 times or more) using the replicate() command (or something similar) and save the output under the name LRT_vec
+LRT_vec=replicate(10000,LRT_Normal())
+```
+```{R}
+#Q2Aiii
+#Plot a density histogram using LRT_vec.
+hist(LRT_vec,breaks=50,freq=FALSE)
+```
+```{R}
+#Q2Aiv
+#Overlay a χ2(df=1) density curve on top of this histogram.
+hist(LRT_vec,breaks=50,freq=FALSE)
+lines(density(rchisq(100000,df=1)))
+```
+```{R}
+#Q2B
+#repeat but with different distribution
+#Suppose X1, X2, ..., X5 iid∼ Pois(λ).We want to test H0: λ = 3 v.s. H1: λ ̸= 3 at level of significance, α.
+#Q2Bi
+#generates 5 random observations from a P ois(λ = 3) distribution
+#evaluates the likelihood function at λ = 3 (save it under the name L_theta0)
+#evaluates the likelihood function at λ = X_bar (save it under the name L_theta1)
+#calculates and returns -2*log(L_theta0/L_theta1)
+LRT_Pois=function(){
+  x=rpois(5,lambda=3)
+  L_theta0=prod(dpois(x,lambda=3))
+  L_theta1=prod(dpois(x,lambda=mean(x)))
+  return(-2*log(L_theta0/L_theta1))
+}
+LRT_Pois()
+```
+```{R}
+#Run this function (10000 times or more) using the replicate() command (or something similar) and save the output under the name LRT_vec
+LRT_vec=replicate(10000,LRT_Pois())
+```
+```{R}
+#Plot a density histogram using LRT_vec.
+hist(LRT_vec,breaks=50,freq=FALSE)
+```
+```{R}
+#Overlay a chisq (df=1) density curve on top of this histogram.
+hist(LRT_vec,breaks=50,freq=FALSE)
+lines(density(rchisq(100000,df=1)))
+```
+```{R}
+#Q2C
+#
+#when samples are drawn from Normal distribution, the test statistics follows chi-sq df=1.
+#this scenario, the distribution does not depend on the sample size.
+#for Poisson distribution, the test statistics converges in distribution to chi-sq df=1 and the histogram and the chi-square density are supposed to be closer and closer as n increases
+```
+```{R}
+#Q3
+# 4 9 4 1 2 3 6 2 2 4 4 3 6 5 6 from Poisson
+#Q3a
+y=c(4,9,4,1,2,3,6,2,2,4,4,3,6,5,6)
+n=length(y)
+t_old=6
+iteration=1
+dif=1
+while(dif>0.00001){
+  t=t_old
+  l_d=-n+sum(y)/t
+  l_sd=n/mean(y)
+  t_new=t_old+l_d/l_sd
+  print(paste("iteration:",iteration))
+  print(c(t_old,t_new))
+  dif=abs(t_new-t_old)
+  t_old=t_new
+  iteration=iteration+1
+}
+```
+```{R}
+#Q3b
+y=c(4,9,4,1,2,3,6,2,2,4,4,3,6,5,6)
+n=length(y)
+t_old=6
+iteration=1
+dif=1
+while(dif>0.00001){
+  t=t_old
+  l_d=-n+sum(y)/t
+  l_sd=n/t
+  t_new=t_old+l_d/l_sd
+  print(paste("iteration:",iteration))
+  print(c(t_old,t_new))
+  dif=abs(t_new-t_old)
+  t_old=t_new
+  iteration=iteration+1
+}
+```
+```{R}
+#Q3c
+y=c(4,9,4,1,2,3,6,2,2,4,4,3,6,5,6)
+n=length(y)
+t_old=0.001
+iteration=1
+dif=1
+while(dif>0.00001 & iteration<1001){
+  t=t_old
+  l_d=-n+sum(y)/t
+  l_sd=n/mean(y)
+  t_new=t_old+l_d/l_sd
+  dif=abs(t_new-t_old)
+  t_old=t_new
+  iteration=iteration+1
+}
+print(paste("iteration:",iteration))
+```
+```{R}
+print(c(t_old,t_new))
+```
+#Using the N-R algorithm, even after 1000 iterations it did not converge with the initial at 0.001; however, with testing, it converges on the 4080 iterations. 
+
+#But with same inital here is the performance of the Fisher's scoring method:
+```{R}
+#Q3c
+y=c(4,4,3,6,5,6,5,6,5,6,5,6)
+n=length(y)
+t_old=0.001
+iteration=1
+dif=1
+while(dif>0.00001 & iteration<1001){
+  t=t_old
+  l_d=-n+sum(y)/t
+  l_sd=n/t
+  t_new=t_old+l_d/l_sd
+  dif=abs(t_new-t_old)
+  t_old=t_new
+  iteration=iteration+1
+}
+print(paste("iteration:",iteration))
+print(c(t_old,t_new))
+```
+#fisher's scoring method converges in just three iterations.
