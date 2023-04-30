@@ -1,2 +1,3 @@
 # ProjectCompilation
-This compilation of projects demonstrates my contribution beyond academic.
+
+The Compilation entails my work within and outside of academics.
